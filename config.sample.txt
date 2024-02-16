@@ -1,0 +1,3 @@
+# <certdir>					<host:port>				<ssh-cmd>
+# directory <certdir> must contain these files: certificate.crt chain.crt private.key
+/home/kristian/STAR_CERT/	my.domain.com:443		ssh ssl-manager@my.domain.com
