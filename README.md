@@ -23,10 +23,12 @@ auto renew SSL certificate from 1 centralized server
 	- authenticating ssh from centralized server to each server must not use password (ssh key usage is recommended instead)
 - example content of config.txt:
 	```
-	# <certdir>					<host:port>				<ssh-cmd>
-	/home/kristian/STAR_CERT/	my.domain.com:443		ssh ssl-manager@my.domain.com
+	# <certdir>                  <host:port[/servername]>        <ssh-cmd>
+	/home/kristian/STAR_CERT/    my.domain.com:443               ssh ssl-manager@my.domain.com
+	/home/kristian/STAR_CERT/    11.22.33.44:443/myserver.com    ssh ssl-manager@11.22.33.44
 	# directory <certdir> must contain these files: certificate.crt chain.crt private.key
 	```
+- some application server (e.g.: apache vhost) use SNI in SSL hello to determine which certificate to use. to match the ssl certificate with `openssl -servername <servername>`, add `/servername` after `host:port`
 
 ### Use Case
 - you have a lot of servers that served content over https (or any other ssl enabled socket like smtp)

@@ -9,10 +9,20 @@ cat config.txt | sed 's/#.*$//' | awk 'NF' | while read -r LINE; do
   SOCKET=$(echo "$LINE" | cut -d' ' -f2)
   SSHCMD=$(echo "$LINE" | cut -d' ' -f3-)
 
+  # separate domain name if exist
+  SOCKET_SERVERNAME=$(echo "$SOCKET" | cut -d'/' -f2)
+  SOCKET=$(echo "$SOCKET" | cut -d'/' -f1)
+  SERVERNAME_CMD=""
+  if [[ "$SOCKET_SERVERNAME" != "" ]]; then
+    SERVERNAME_CMD=" -servername "
+  fi
+
+
+
   # cd to CERTDIR, then compare certificate.crt against ssl in production socket (e.g.: tcp socket port 443 for https)
   cd "$CERTDIR"
   FINGERPRINT_CERT=$(openssl x509 -fingerprint -noout -in "$CERTDIR"/certificate.crt)
-  FINGERPRINT_SERVER=$(openssl s_client -connect "$SOCKET" < /dev/null 2>/dev/null | openssl x509 -fingerprint -noout -in /dev/stdin)
+  FINGERPRINT_SERVER=$(openssl s_client -connect "$SOCKET" $SERVERNAME_CMD "$SOCKET_SERVERNAME" -cipher "DEFAULT:@SECLEVEL=0" < /dev/null 2>/dev/null | openssl x509 -fingerprint -noout -in /dev/stdin)
 
   # if the fingerprint is not identical, then run command to update ssl
   if [[ "$FINGERPRINT_CERT" != "$FINGERPRINT_SERVER" ]]; then
